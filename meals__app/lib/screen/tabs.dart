@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:meals__app/data/dummy_data.dart';
+import 'package:meals__app/model/meal.dart';
+import 'package:meals__app/screen/caterories.dart';
+import 'package:meals__app/screen/meals.dart';
 
 class TabsScreen extends StatefulWidget {
   const TabsScreen({super.key});
@@ -7,20 +11,60 @@ class TabsScreen extends StatefulWidget {
 }
 
 class _TabsScreenState extends State<TabsScreen> {
+  int _selectedpageIndex = 0;
+  final List<Meal> _favoriteMeals = [];
+
+  void selectPage(int index) {
+    setState(() {
+      _selectedpageIndex = index;
+    });
+  }
+
+  void _toggleFavoriteMeal(Meal meal) {
+    final isExisting = _favoriteMeals.contains(meal);
+    if (isExisting) {
+      setState(() {
+        _favoriteMeals.remove(meal);
+      });
+    } else {
+      setState(() {
+        _favoriteMeals.add(meal);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget currentScreen = CateroriesScreen(
+      categories: availableCategories,
+      onToggleFavorite: _toggleFavoriteMeal,
+    );
+
+    var pageTitle = 'Categories';
+
+    if (_selectedpageIndex == 1) {
+      currentScreen = MealsScreen(
+        meals: _favoriteMeals,
+        onToggleFavorite: _toggleFavoriteMeal,
+      );
+      pageTitle = 'Favorites';
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tabs Screen'),
+        title: Text(pageTitle),
       ),
-      body: const Center(
-        child: Text('Tabs Screen'),
-      ),
+      body: currentScreen,
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedpageIndex,
         onTap: (indexTab) {
-          print(indexTab);
+          selectPage(indexTab);
         },
-        items: [],
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.set_meal), label: 'Categories'),
+          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Favoritges'),
+        ],
       ),
     );
   }
