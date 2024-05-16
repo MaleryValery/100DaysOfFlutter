@@ -6,6 +6,13 @@ import 'package:meals__app/screen/filters.dart';
 import 'package:meals__app/screen/meals.dart';
 import 'package:meals__app/widgets/main_drawer.dart';
 
+const kInitialFilters = {
+  Filter.glutenFree: false,
+  Filter.lactoseFree: false,
+  Filter.vegetarian: false,
+  Filter.vegan: false,
+};
+
 class TabsScreen extends StatefulWidget {
   const TabsScreen({super.key});
   @override
@@ -15,14 +22,19 @@ class TabsScreen extends StatefulWidget {
 class _TabsScreenState extends State<TabsScreen> {
   int _selectedpageIndex = 0;
   final List<Meal> _favoriteMeals = [];
+  Map<Filter, bool> selectedFilters = kInitialFilters;
 
-  void _setScreen(String identifier) {
+  void _setScreen(String identifier) async {
     Navigator.of(context).pop();
 
     if (identifier == 'filters') {
+      final result = await Navigator.of(context).push<Map<Filter, bool>>(
+          MaterialPageRoute(
+              builder: (ctx) =>
+                  FiltersScreen(currentFilters: selectedFilters)));
+      print(result);
       setState(() {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (ctx) => const FiltersScreen()));
+        selectedFilters = result ?? kInitialFilters;
       });
     }
   }
@@ -58,9 +70,26 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final availableMeals = dummyMeals.where((meal) {
+      if (selectedFilters[Filter.glutenFree]! && !meal.isGlutenFree) {
+        return false;
+      }
+      if (selectedFilters[Filter.lactoseFree]! && !meal.isLactoseFree) {
+        return false;
+      }
+      if (selectedFilters[Filter.vegetarian]! && !meal.isVegetarian) {
+        return false;
+      }
+      if (selectedFilters[Filter.vegan]! && !meal.isVegan) {
+        return false;
+      }
+      return true;
+    }).toList();
+
     Widget currentScreen = CateroriesScreen(
       categories: availableCategories,
       onToggleFavorite: _toggleFavoriteMeal,
+      availableMeals: availableMeals,
     );
 
     var pageTitle = 'Categories';

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meals__app/data/dummy_data.dart';
 import 'package:meals__app/model/category.dart';
 import 'package:meals__app/model/meal.dart';
 import 'package:meals__app/screen/meals.dart';
@@ -7,13 +6,17 @@ import 'package:meals__app/widgets/category_grid_item.dart';
 
 class CateroriesScreen extends StatelessWidget {
   const CateroriesScreen(
-      {super.key, required this.categories, required this.onToggleFavorite});
+      {super.key,
+      required this.categories,
+      required this.availableMeals,
+      required this.onToggleFavorite});
 
   final void Function(Meal meal) onToggleFavorite;
   final List<Category> categories;
+  final List<Meal> availableMeals;
 
   void _selectCategory(BuildContext context, Category category) {
-    final filteredMeals = dummyMeals
+    final filteredMeals = availableMeals
         .where((meal) => meal.categories.contains(category.id))
         .toList();
     Navigator.push(context, MaterialPageRoute(builder: (context) {
