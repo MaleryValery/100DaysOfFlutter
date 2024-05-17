@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meals__app/data/dummy_data.dart';
 import 'package:meals__app/model/meal.dart';
 import 'package:meals__app/provider/meals_provider.dart';
+import 'package:meals__app/provider/favorites_provider.dart';
 import 'package:meals__app/screen/caterories.dart';
 import 'package:meals__app/screen/filters.dart';
 import 'package:meals__app/screen/meals.dart';
@@ -47,33 +48,12 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     });
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 1),
-    ));
-  }
-
-  void _toggleFavoriteMeal(Meal meal) {
-    final isExisting = _favoriteMeals.contains(meal);
-    if (isExisting) {
-      setState(() {
-        _favoriteMeals.remove(meal);
-      });
-      _showSnackBar('Removed from favorites');
-    } else {
-      setState(() {
-        _favoriteMeals.add(meal);
-      });
-      _showSnackBar('Added to favorites');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final meals = ref.watch(mealsProvider);
     // ref.read(provider);
+
+    final favotiteMeals = ref.watch(favoriteMealProvider);
     final availableMeals = meals.where((meal) {
       if (selectedFilters[Filter.glutenFree]! && !meal.isGlutenFree) {
         return false;
@@ -92,7 +72,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
 
     Widget currentScreen = CateroriesScreen(
       categories: availableCategories,
-      onToggleFavorite: _toggleFavoriteMeal,
       availableMeals: availableMeals,
     );
 
@@ -100,8 +79,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
 
     if (_selectedpageIndex == 1) {
       currentScreen = MealsScreen(
-        meals: _favoriteMeals,
-        onToggleFavorite: _toggleFavoriteMeal,
+        meals: favotiteMeals,
       );
       pageTitle = 'Favorites';
     }
