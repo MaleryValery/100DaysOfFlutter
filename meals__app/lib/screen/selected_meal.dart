@@ -13,36 +13,50 @@ class SelectedMealScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isAdded = ref.watch(favoriteMealProvider).contains(selectedMeal);
+    final favoriteMeals = ref.watch(favoriteMealProvider);
+
+    final isFavorite = favoriteMeals.contains(selectedMeal);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(selectedMeal.title),
-        actions: [
-          IconButton(
-            onPressed: () {
-              final isAdded = ref
-                  .read(favoriteMealProvider.notifier)
-                  .toggleFavoriteMealStatus(selectedMeal);
-              ScaffoldMessenger.of(context).clearSnackBars();
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(
-                    isAdded ? 'Added to favorites' : 'Removed from favorites'),
-                duration: const Duration(seconds: 1),
-              ));
+      appBar: AppBar(title: Text(selectedMeal.title), actions: [
+        IconButton(
+          onPressed: () {
+            final wasAdded = ref
+                .read(favoriteMealProvider.notifier)
+                .toggleFavoriteMealStatus(selectedMeal);
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+                  wasAdded ? 'Added to favorites' : 'Removed from favorites'),
+              duration: const Duration(seconds: 1),
+            ));
+          },
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              return RotationTransition(
+                turns: Tween<double>(begin: 0.9, end: 1).animate(animation),
+                child: child,
+              );
             },
-            icon: Icon(!isAdded ? Icons.star_border : Icons.star),
-          )
-        ],
-      ),
+            child: Icon(
+              isFavorite ? Icons.star : Icons.star_border,
+              key: ValueKey(isFavorite),
+            ),
+          ),
+        )
+      ]),
       body: ListView(
         children: [
-          Image.network(
-            selectedMeal.imageUrl,
-            width: double.infinity,
-            height: 400,
-            fit: BoxFit.cover,
+          Hero(
+            tag: selectedMeal.id,
+            child: Image.network(
+              selectedMeal.imageUrl,
+              width: double.infinity,
+              height: 400,
+              fit: BoxFit.cover,
+            ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 14,
           ),
           Padding(
@@ -55,7 +69,7 @@ class SelectedMealScreen extends ConsumerWidget {
                   .copyWith(color: Theme.of(context).colorScheme.primary),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 14,
           ),
           for (final item in selectedMeal.ingredients)

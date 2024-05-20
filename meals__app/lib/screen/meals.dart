@@ -22,7 +22,6 @@ class MealsScreen extends StatelessWidget {
   @override
   Widget build(context) {
     Widget content = ListView.builder(
-        // padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
         itemCount: meals.length,
         itemBuilder: (context, index) {
           final currentMeal = meals[index];
